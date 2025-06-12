@@ -1,0 +1,30 @@
+name: Firmware Build and Test  # Название workflow
+
+on:  # Триггеры запуска
+  push:
+    branches: [ "main", "dev" ]  # Запуск при push в main или dev
+  pull_request:
+    branches: [ "main" ]        # И при создании PR в main
+
+jobs:  # Задачи, которые выполняет workflow
+  build:  # Название задачи (можно несколько)
+    runs-on: ubuntu-latest      # ОС для сборки (можно windows-latest)
+
+    steps:  # Шаги выполнения
+      - name: Checkout code     # Шаг 1: Копируем код из репозитория
+        uses: actions/checkout@v4
+
+      - name: Install dependencies  # Шаг 2: Установка инструментов
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc g++ make
+
+      - name: Configure and Build  # Шаг 3: Сборка проекта
+        run: |
+          mkdir build && cd build
+          cmake .. && make
+
+      - name: Run Tests (optional)  # Шаг 4: Запуск тестов (если есть)
+        run: |
+          cd build
+          ctest --output-on-failure
